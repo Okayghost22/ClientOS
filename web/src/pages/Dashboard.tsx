@@ -27,8 +27,7 @@ import {
     Lock,
     User,
     ShieldCheck,
-    Activity,
-    FileText
+    Activity
 } from 'lucide-react';
 
 interface Project {
