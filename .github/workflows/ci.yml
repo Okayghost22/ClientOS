@@ -1,0 +1,65 @@
+name: ClientOS CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-build:
+    name: Build, Lint & Test Full-Stack Suite
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: clientos_user
+          POSTGRES_PASSWORD: clientos_password
+          POSTGRES_DB: clientos_db
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install Shared Package Dependencies
+        run: |
+          cd shared
+          npm ci
+
+      - name: Build & Test Backend
+        env:
+          DATABASE_URL: "postgresql://clientos_user:clientos_password@localhost:5433/clientos_db?schema=public"
+          JWT_SECRET: "ci_test_secret"
+        run: |
+          cd backend
+          npm ci
+          npx prisma generate
+          npx prisma db push --skip-generate
+          npx tsc --noEmit
+          npm test
+
+      - name: Build & Type-Check Web App
+        run: |
+          cd web
+          npm ci
+          npx tsc --noEmit
+
+      - name: Verify Docker Container Build
+        run: |
+          docker compose build
