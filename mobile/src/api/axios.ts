@@ -3,29 +3,10 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { storage } from '../utils/storage';
 
-// Dynamic host IP resolution for physical phone testing via Expo Go over Wi-Fi
+// Dynamic host IP resolution for physical phone testing & production backend
 const getBaseUrl = () => {
-    try {
-        const hostUri = Constants.expoConfig?.hostUri ||
-            (Constants as any).manifest?.debuggerHost ||
-            (Constants as any).manifest2?.extra?.expoGo?.developer?.tool;
-
-        if (hostUri) {
-            const hostIp = hostUri.split(':')[0];
-            if (hostIp && hostIp !== 'localhost' && hostIp !== '127.0.0.1') {
-                console.log(`[API] Resolved Expo Go Host IP: http://${hostIp}:5000/api`);
-                return `http://${hostIp}:5000/api`;
-            }
-        }
-    } catch (e) {
-        console.warn('Failed to resolve Expo host IP', e);
-    }
-
-    // Fallback for Android emulator vs iOS simulator / Web
-    if (Platform.OS === 'android') {
-        return 'http://10.0.2.2:5000/api';
-    }
-    return 'http://localhost:5000/api';
+    // Return live production backend URL
+    return 'https://clientos-backend-8fyx.onrender.com/api';
 };
 
 const api = axios.create({
