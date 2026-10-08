@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-provider = "postgresql"
-url      = "postgresql://clientos_user:clientos_password@127.0.0.1:5433/clientos_db?schema=public"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum Role {
