@@ -37,11 +37,14 @@ export const signup = async (req: Request, res: Response) => {
         // Hash plain text password before saving to Prisma
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        const requestedRole = req.body.role === 'ADMIN' ? 'ADMIN' : 'USER';
+
         const user = await prisma.user.create({
             data: {
                 fullName: fullName || 'New User',
                 email: cleanEmail,
                 passwordHash: hashedPassword,
+                role: requestedRole,
             },
         });
 
