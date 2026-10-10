@@ -1,7 +1,18 @@
 import axios from 'axios';
 
+const getBaseUrl = (): string => {
+    let url: string = import.meta.env.VITE_API_URL || 'https://clientos-backend-8fyx.onrender.com/api';
+    // Remove trailing slash if present
+    url = url.replace(/\/+$/, '');
+    // Ensure /api suffix
+    if (!url.endsWith('/api')) {
+        url = `${url}/api`;
+    }
+    return url;
+};
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'https://clientos-backend-8fyx.onrender.com/api',
+    baseURL: getBaseUrl(),
 });
 
 api.interceptors.request.use((config) => {

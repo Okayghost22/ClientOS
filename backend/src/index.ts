@@ -24,13 +24,24 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 
-// REST API Route Registration
+// REST API Route Registration (supporting both /api and root prefixes)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/projects', projectRoutes);
+app.use('/projects', projectRoutes);
+
 app.use('/api/tasks', taskRoutes);
+app.use('/tasks', taskRoutes);
+
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/dashboard', dashboardRoutes);
+
 app.use('/api/clients', clientRoutes);
+app.use('/clients', clientRoutes);
+
 app.use('/api/audit-logs', auditLogRoutes);
+app.use('/audit-logs', auditLogRoutes);
 
 // Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
