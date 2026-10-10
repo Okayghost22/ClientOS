@@ -6,6 +6,7 @@ import taskRoutes from './routes/taskRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
 import clientRoutes from './routes/clientRoutes';
 import auditLogRoutes from './routes/auditLogRoutes';
+import prisma from './prisma';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,8 +45,13 @@ app.use('/api/audit-logs', auditLogRoutes);
 app.use('/audit-logs', auditLogRoutes);
 
 // Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
-    res.json({ status: 'ok', timestamp: new Date() });
+app.get(['/health', '/api/health'], async (req: Request, res: Response) => {
+    try {
+        await prisma.$queryRaw`SELECT 1`;
+        res.json({ status: 'ok', database: 'connected', timestamp: new Date() });
+    } catch (err: any) {
+        res.status(200).json({ status: 'degraded', database: 'disconnected', error: err?.message, timestamp: new Date() });
+    }
 });
 
 // Global Centralized Error Handling Middleware

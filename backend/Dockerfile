@@ -17,5 +17,5 @@ RUN npm run build
 # Expose backend API port
 EXPOSE 5000
 
-# Start production server
-CMD ["node", "dist/index.js"]
+# Start production server with auto schema push
+CMD ["sh", "-c", "npx prisma db push --skip-generate || true; node dist/index.js"]

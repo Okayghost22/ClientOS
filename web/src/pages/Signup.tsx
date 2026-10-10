@@ -67,7 +67,7 @@ export const Signup: React.FC = () => {
             setSubmitted(true);
             navigate('/dashboard');
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to create account. Please try again.');
+            setError(err.response?.data?.details || err.response?.data?.message || 'Failed to create account. Please try again.');
         } finally {
             setLoading(false);
         }

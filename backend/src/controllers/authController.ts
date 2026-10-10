@@ -71,7 +71,7 @@ export const signup = async (req: Request, res: Response) => {
         });
     } catch (error: any) {
         console.error('Signup error:', error);
-        return res.status(500).json({ message: 'Registration failed' });
+        return res.status(500).json({ message: 'Registration failed', details: error?.message || String(error) });
     }
 };
 
@@ -127,7 +127,7 @@ export const login = async (req: Request, res: Response) => {
         });
     } catch (error: any) {
         console.error('Login error:', error);
-        return res.status(500).json({ message: 'Login failed' });
+        return res.status(500).json({ message: 'Login failed', details: error?.message || String(error) });
     }
 };
 
