@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api', // or your backend API server URL
+    baseURL: import.meta.env.VITE_API_URL || 'https://clientos-backend-8fyx.onrender.com/api',
 });
 
 api.interceptors.request.use((config) => {

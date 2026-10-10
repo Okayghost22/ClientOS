@@ -39,7 +39,7 @@ psql -U postgres -c "CREATE DATABASE clientos_db OWNER clientos_user;"
 Set the connection string in `backend/.env`:
 
 ```env
-DATABASE_URL="postgresql://clientos_user:clientos_password@localhost:5433/clientos_db?schema=public"
+DATABASE_URL="postgresql://clientos_user:clientos_password@localhost:5432/clientos_db?schema=public"
 ```
 
 > **Note:** The default PostgreSQL port is `5432`. If you're using port `5433` (e.g., to avoid conflicts with another Postgres instance), adjust accordingly.

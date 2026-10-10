@@ -13,7 +13,7 @@ cp backend/.env.example backend/.env
 
 | Variable | Required | Example Value | Description |
 |----------|----------|---------------|-------------|
-| `DATABASE_URL` | ✅ Yes | `postgresql://user:pass@localhost:5433/clientos_db?schema=public` | Full PostgreSQL connection string. Prisma uses this to connect to your database. |
+| `DATABASE_URL` | ✅ Yes | `postgresql://user:pass@localhost:5432/clientos_db?schema=public` | Full PostgreSQL connection string. Prisma uses this to connect to your database. |
 | `JWT_SECRET` | ✅ Yes | `your_super_secret_key_here` | Secret key used to sign and verify JWT access tokens. Use a long random string in production. |
 | `JWT_REFRESH_SECRET` | ✅ Yes | `your_refresh_secret_key` | Separate secret used to sign refresh tokens (longer-lived). Keep this different from `JWT_SECRET`. |
 | `PORT` | ❌ Optional | `5000` | Port the Express server listens on. Defaults to `5000` if not set. |
@@ -24,7 +24,7 @@ cp backend/.env.example backend/.env
 
 ```env
 # Database (PostgreSQL)
-DATABASE_URL="postgresql://clientos_user:clientos_password@localhost:5433/clientos_db?schema=public"
+DATABASE_URL="postgresql://clientos_user:clientos_password@localhost:5432/clientos_db?schema=public"
 
 # JWT Auth
 JWT_SECRET="change_this_to_a_long_random_string_in_production"
