@@ -6,13 +6,16 @@ import {
     getTasksByProject,
     updateTask,
     updateTaskStatus,
-    deleteTask
+    deleteTask,
+    triggerNotificationCheck
 } from '../controllers/taskController';
 import { authenticateToken } from '../middleware/authMiddleware';
 
 const router = Router();
 
 router.use(authenticateToken);
+
+router.post('/notifications/check-due-tomorrow', triggerNotificationCheck); // POST /api/tasks/notifications/check-due-tomorrow
 
 router.get('/', getAllTasks);                         // GET  /api/tasks
 router.get('/:id', getTaskById);                     // GET  /api/tasks/:id

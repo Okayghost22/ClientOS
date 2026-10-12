@@ -1,6 +1,8 @@
 import { Response } from 'express';
 import { PrismaClient, TaskStatus, TaskPriority } from '@prisma/client';
 import { AuthRequest } from '../middleware/authMiddleware';
+import { publishTaskNotification } from '../services/rabbitmqService';
+import { checkAndQueueTomorrowTasks } from '../services/notificationScheduler';
 
 const prisma = new PrismaClient();
 
@@ -38,8 +40,34 @@ export const createTask = async (req: AuthRequest, res: Response): Promise<void>
                 dueDate: dueDate ? new Date(dueDate) : null,
                 project: { connect: { id: projectId } },
                 user: { connect: { id: userId } }
+            },
+            include: {
+                user: {
+                    select: { id: true, email: true, fullName: true }
+                }
             }
         });
+
+        // If the task is due tomorrow, immediately queue a notification in RabbitMQ
+        if (task.dueDate) {
+            const taskDate = new Date(task.dueDate);
+            const now = new Date();
+            const tomorrowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+            const tomorrowEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 23, 59, 59, 999);
+
+            if (taskDate >= tomorrowStart && taskDate <= tomorrowEnd) {
+                publishTaskNotification({
+                    taskId: task.id,
+                    taskName: task.name,
+                    dueDate: task.dueDate.toISOString(),
+                    userId: task.user.id,
+                    userEmail: task.user.email,
+                    userName: task.user.fullName,
+                    projectId: task.projectId,
+                    timestamp: new Date().toISOString()
+                }).catch((err) => console.error('[RabbitMQ] Error publishing on task create:', err));
+            }
+        }
 
         res.status(201).json({ message: 'Task created successfully', task });
     } catch (error: any) {
@@ -183,5 +211,19 @@ export const getTaskById = async (req: AuthRequest, res: Response): Promise<void
         res.status(200).json({ task });
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch task' });
+    }
+};
+
+// POST /api/tasks/notifications/check-due-tomorrow — On-demand trigger for demonstration to reviewer
+export const triggerNotificationCheck = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const result = await checkAndQueueTomorrowTasks();
+        res.status(200).json({
+            message: 'Tomorrow deadline notification check completed successfully',
+            queuedCount: result.queuedCount,
+            tasks: result.tasks
+        });
+    } catch (error: any) {
+        res.status(500).json({ error: 'Failed to process notifications', details: error.message });
     }
 };

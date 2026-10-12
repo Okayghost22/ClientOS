@@ -65,15 +65,15 @@ export const ProjectDetails: React.FC = () => {
         if (id) {
             fetchProjectDetails();
 
-            // Auto-poll every 15 seconds to pick up task changes from mobile app
+            // Auto-poll silently every 15 seconds to pick up task changes from mobile app
             const pollInterval = setInterval(() => {
-                fetchProjectDetails();
+                fetchProjectDetails(true);
             }, 15000);
 
-            // Refetch instantly when the user switches back to this tab
+            // Refetch instantly (silently) when the user switches back to this tab
             const handleVisibilityChange = () => {
                 if (document.visibilityState === 'visible') {
-                    fetchProjectDetails();
+                    fetchProjectDetails(true);
                 }
             };
             document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -85,9 +85,9 @@ export const ProjectDetails: React.FC = () => {
         }
     }, [id]);
 
-    const fetchProjectDetails = async () => {
+    const fetchProjectDetails = async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
             const res = await api.get(`/projects/${id}`);
             const projectData = res.data?.project || res.data;
             setProject(projectData);
@@ -95,7 +95,7 @@ export const ProjectDetails: React.FC = () => {
         } catch (err) {
             console.error('Failed to load project details', err);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
