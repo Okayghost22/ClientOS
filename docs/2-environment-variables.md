@@ -24,7 +24,7 @@ cp backend/.env.example backend/.env
 
 ```env
 # Database (PostgreSQL)
-DATABASE_URL="postgresql://clientos_user:clientos_password@localhost:5432/clientos_db?schema=public"
+DATABASE_URL="postgresql://clientos_user:clientos_password@localhost:5433/clientos_db?schema=public"
 
 # JWT Auth
 JWT_SECRET="change_this_to_a_long_random_string_in_production"
