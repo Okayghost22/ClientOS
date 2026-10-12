@@ -31,6 +31,11 @@ jobs:
         ports:
           - 5672:5672
 
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -51,6 +56,8 @@ jobs:
         env:
           DATABASE_URL: "postgresql://clientos_user:clientos_password@localhost:5433/clientos_db?schema=public"
           JWT_SECRET: "ci_test_secret"
+          REDIS_URL: "redis://localhost:6379"
+          RABBITMQ_URL: "amqp://localhost:5672"
         run: |
           cd backend
           npm ci

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { AuthRequest } from '../middleware/authMiddleware';
 import { PrismaClient } from '@prisma/client';
+import { blacklistToken } from '../services/redisService';
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key';
@@ -171,9 +172,32 @@ export const handleRefreshToken = async (req: Request, res: Response) => {
 // REGISTER - alias for signup (required API contract)
 export const register = signup;
 
-// LOGOUT - client-side token invalidation (JWT is stateless; instruct client to discard token)
-export const logout = (req: Request, res: Response) => {
-    return res.status(200).json({ message: 'Logged out successfully' });
+// LOGOUT - Redis-backed token revocation
+export const logout = async (req: Request, res: Response) => {
+    try {
+        const authHeader = req.headers.authorization;
+        const bodyToken = req.body?.token;
+        const refreshToken = req.body?.refreshToken;
+
+        let tokenToBlacklist: string | null = null;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            tokenToBlacklist = authHeader.split(' ')[1];
+        } else if (bodyToken) {
+            tokenToBlacklist = bodyToken;
+        }
+
+        if (tokenToBlacklist) {
+            await blacklistToken(tokenToBlacklist);
+        }
+
+        if (refreshToken) {
+            await blacklistToken(refreshToken, 30 * 86400); // 30 days TTL for refresh token
+        }
+
+        return res.status(200).json({ message: 'Logged out successfully. Token invalidated in Redis.' });
+    } catch (error: any) {
+        return res.status(200).json({ message: 'Logged out successfully' });
+    }
 };
 
 // GET /api/auth/me - return authenticated user profile from JWT

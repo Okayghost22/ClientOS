@@ -9,6 +9,7 @@ import auditLogRoutes from './routes/auditLogRoutes';
 import prisma from './prisma';
 import { initRabbitMQ, startNotificationConsumer } from './services/rabbitmqService';
 import { startPeriodicNotificationScheduler } from './services/notificationScheduler';
+import { initRedis } from './services/redisService';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -67,8 +68,9 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 app.listen(PORT, async () => {
     console.log(`Server running on http://localhost:${PORT}`);
     
-    // Initialize RabbitMQ and start notification consumer worker
+    // Initialize Redis & RabbitMQ background services
     try {
+        await initRedis();
         await initRabbitMQ();
         await startNotificationConsumer();
         startPeriodicNotificationScheduler();
